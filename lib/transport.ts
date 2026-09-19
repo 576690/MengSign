@@ -45,12 +45,10 @@ export function schoolFetch(url: string, init: RequestInit): Promise<Response> {
                 Array.isArray(value) ? value.join(", ") : value,
               );
           }
-          resolve(
-            new Response(Buffer.concat(chunks), {
-              status: res.statusCode || 502,
-              headers: responseHeaders,
-            }),
-          );
+          const status = res.statusCode || 502;
+          try {
+            resolve(new Response([204, 205, 304].includes(status) ? null : Buffer.concat(chunks), { status, headers: responseHeaders }));
+          } catch (error) { reject(error); }
         });
       },
     );
