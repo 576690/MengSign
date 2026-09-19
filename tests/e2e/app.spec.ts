@@ -1,0 +1,43 @@
+import { test, expect } from '@playwright/test';
+test('demo journey, theme, safe QR, responsive layout and offline', async ({ page, context }, testInfo) => {
+  let attendanceRequests = 0;
+  page.on('request', request => { if (request.url().includes('/api/attendance')) attendanceRequests++; });
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: '欢迎来到 MengSign' })).toBeVisible();
+  await page.screenshot({ path: `artifacts/${testInfo.project.name}-login.png`, fullPage: true });
+  await page.getByRole('button', { name: '体验演示模式' }).click();
+  await expect(page.getByText('演示模式 · 示例课程与签到，不连接学校')).toBeVisible();
+  await page.getByRole('button', { name: '一键签到', exact: true }).click();
+  await expect(page.getByText('演示签到完成 · 未向学校发送请求')).toBeVisible();
+  expect(attendanceRequests).toBe(0);
+  await page.screenshot({ path: `artifacts/${testInfo.project.name}-today.png`, fullPage: true });
+  await page.getByRole('button', { name: '二维码', exact: true }).filter({ visible: true }).click();
+  await expect(page.getByRole('img', { name: '演示二维码，不能用于签到' })).toBeVisible();
+  await page.screenshot({ path: `artifacts/${testInfo.project.name}-qr.png`, fullPage: true });
+  await context.setOffline(true);
+  await expect(page.getByRole('img', { name: '演示二维码，不能用于签到' })).toHaveCount(0);
+  await expect(page.getByText('二维码暂不可用', { exact: true })).toBeVisible();
+  await context.setOffline(false);
+  await expect(page.getByRole('img', { name: '演示二维码，不能用于签到' })).toBeVisible();
+  await page.getByRole('button', { name: '设置', exact: true }).filter({ visible: true }).click();
+  await page.getByRole('button', { name: '深色', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.screenshot({ path: `artifacts/${testInfo.project.name}-settings-dark.png`, fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.getByRole('button', { name: '添加到主屏幕 独立窗口，快速打开' }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.keyboard.press('Escape'); await expect(page.getByRole('dialog')).not.toBeVisible();
+  await page.getByRole('button', { name: '退出演示模式' }).click();
+  await expect(page.getByRole('heading', { name: '欢迎来到 MengSign' })).toBeVisible();
+});
+test('password visibility and failed login never claim success', async ({ page }) => {
+  await page.route('**/api/auth/login', route => route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ error: { message: '账号或密码不正确，请检查后重试' } }) }));
+  await page.goto('/'); await page.getByLabel('学号 / SEP 邮箱').fill('test@example.invalid'); await page.getByLabel('密码', { exact: true }).fill('test-not-a-real-password');
+  await page.getByRole('button', { name: '显示密码' }).click(); await expect(page.getByLabel('密码', { exact: true })).toHaveAttribute('type', 'text');
+  await page.getByRole('button', { name: '登录', exact: true }).click(); await expect(page.getByRole('alert').filter({ hasText: '账号或密码不正确' })).toBeVisible();
+});
+test('API rejects unauthenticated, cross-origin and oversized requests', async ({ request }) => {
+  expect((await request.get('/api/courses')).status()).toBe(401);
+  expect((await request.post('/api/attendance', { headers: { Origin: 'https://other.example' }, data: { courseId: '1234567' } })).status()).toBe(403);
+  expect((await request.post('/api/auth/login', { headers: { Origin: process.env.TEST_BASE_URL || 'http://localhost:3000' }, data: { account: 'x'.repeat(5000), password: 'x' } })).status()).toBe(413);
+});

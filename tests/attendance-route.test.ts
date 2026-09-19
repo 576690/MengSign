@@ -1,0 +1,15 @@
+import { beforeEach, afterEach, expect, it, vi } from 'vitest';
+import { randomBytes } from 'node:crypto';
+const mocks = vi.hoisted(() => ({ session: vi.fn(), courses: vi.fn(), sign: vi.fn() }));
+vi.mock('../lib/session', () => ({ requireSession: mocks.session }));
+vi.mock('../lib/school', () => ({ getCourses: mocks.courses, submitAttendance: mocks.sign }));
+import { POST } from '../app/api/attendance/route';
+import { profile } from '../lib/session-crypto';
+const session = { userId: 'a', sessionId: 'secret', studentNo: '1234567' };
+const req = (input: object) => new Request('https://mengsign.cdro.tech/api/attendance', { method: 'POST', headers: { Origin: 'https://mengsign.cdro.tech', 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
+beforeEach(() => { vi.stubEnv('APP_ORIGIN', 'https://mengsign.cdro.tech'); vi.stubEnv('SESSION_SECRET', randomBytes(32).toString('base64')); vi.clearAllMocks(); mocks.session.mockResolvedValue(session); });
+afterEach(() => vi.unstubAllEnvs());
+it('does not submit a course that is not on this account’s daily schedule', async () => { mocks.courses.mockResolvedValue({ courses: [] }); const result = await POST(req({ accountKey: profile(session).accountKey, courseId: '1234567', userId: 'victim' })); expect(result.status).toBe(403); expect(mocks.sign).not.toHaveBeenCalled(); });
+it('does not repeat a confirmed attendance', async () => { mocks.courses.mockResolvedValue({ courses: [{ id: '1234567', signed: true }] }); const result = await POST(req({ accountKey: profile(session).accountKey, courseId: '1234567' })); expect((await result.json()).outcome).toBe('already_signed'); expect(mocks.sign).not.toHaveBeenCalled(); });
+it('uses server identity, ignoring an injected userId', async () => { mocks.courses.mockResolvedValue({ courses: [{ id: '1234567', signed: false }] }); mocks.sign.mockResolvedValue({ outcome: 'signed', message: 'ok' }); const result = await POST(req({ accountKey: profile(session).accountKey, courseId: '1234567', userId: 'victim' })); expect(result.status).toBe(200); expect(mocks.sign).toHaveBeenCalledWith(session, '1234567'); expect(result.headers.get('cache-control')).toContain('no-store'); });
+it('blocks an old tab after another tab changes the signed-in account', async () => { const result = await POST(req({ accountKey: 'stale-account', courseId: '1234567' })); expect(result.status).toBe(401); expect(mocks.sign).not.toHaveBeenCalled(); });

@@ -1,0 +1,22 @@
+MengSign — a web adaptation of UCAS-Sign-in
+Copyright (C) 2026 MengSign contributors
+License: GNU Affero General Public License v3.0 (AGPL-3.0-only)
+
+School protocol, course/time concepts and QR synchronization adapted from:
+  zhan-nine/UCAS-Sign-in — https://github.com/zhan-nine/UCAS-Sign-in
+  lccipher/UCAS-Course-Sign-in — https://github.com/lccipher/UCAS-Course-Sign-in
+Upstream portions remain copyright their respective authors.
+
+Changes: React/PWA interface; Next.js server adapter; authenticated encrypted
+cookies; explicit authentication/ownership checks; no identity-only login;
+no password persistence; revised schedule/error interpretation; read-only
+reconciliation after a lost attendance response; browser-aware QR expiration.
+
+No Android widget or Breezy Weather implementation is included in MengSign.
+The upstream notice is preserved at public/licenses/UPSTREAM-NOTICE.txt.
+The license is available at LICENSE and public/licenses/AGPL-3.0.txt.
+Corresponding source: https://github.com/576690/MengSign
+
+Runtime third-party packages retain their own licenses, including Next.js,
+React, lucide-react, Tailwind CSS and node-qrcode. See their package metadata
+and license files in the dependency distribution.
