@@ -48,6 +48,6 @@ test('API rejects unauthenticated, cross-origin and oversized requests', async (
   // Real cross-origin browser request, rather than overriding a forbidden Origin header.
   await page.route('https://origin-test.invalid/**', route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>Origin test fixture</title>' }));
   await page.goto('https://origin-test.invalid/');
-  const [rejected] = await Promise.all([page.waitForResponse(target), page.evaluate(url => fetch(url, { method: 'POST', mode: 'no-cors', body: '{}' }), target)]);
+  const [rejected] = await Promise.all([page.waitForResponse(target), page.evaluate(url => { const form = document.createElement('form'); form.action = url; form.method = 'POST'; document.body.append(form); form.submit(); }, target)]);
   expect(rejected.status()).toBe(403);
 });

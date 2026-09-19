@@ -46,7 +46,7 @@ npm run test:e2e
 
 1. 将此仓库导入自己的 Vercel Hobby 账号，Framework Preset 选择 Next.js。
 2. 设置环境变量：`SESSION_SECRET`（新生成的 32 字节 base64 随机密钥）；`APP_ORIGIN=https://mengsign.cdro.tech`；`ADDITIONAL_ORIGINS=https://mengsign.vercel.app`（生产别名）。预览部署的自动分配域名通过 Vercel 注入的 `VERCEL_URL` 验证来源。
-3. 默认使用 `hkg1` 区域，函数最长 60 秒，无 Cron、数据库或付费组件。
+3. 使用 `sin1` 区域，函数最长 60 秒，无 Cron、数据库或付费组件。
 4. 部署完成后访问 `/api/clock`；应返回数值型 `timestamp`。这只验证学校接口可达性，不表示登录／签到已经验证。
 5. 在项目 Settings → Domains 添加 `mengsign.cdro.tech`。在现有 DNS 服务商添加 `mengsign` CNAME，目标必须采用该 Vercel 项目显示的实际值，不要修改博客的根域记录。
 6. 域名生效后验证 HTTPS，在页面中登录自己的学校账号，确认课表；仅在自己有效的课程中主动点击签到进行最终验证。
