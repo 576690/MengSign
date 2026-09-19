@@ -38,12 +38,16 @@ test('password visibility and failed login never claim success', async ({ page }
 });
 test('API rejects unauthenticated, cross-origin and oversized requests', async ({ page }) => {
   await page.goto('/');
-  await page.route('**/api/attendance', route => route.continue({ headers: { ...route.request().headers(), origin: 'https://other.example' } }));
   const statuses = await page.evaluate(async () => {
     const anonymous = await fetch('/api/courses');
-    const crossOrigin = await fetch('/api/attendance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ courseId: '1234567' }) });
     const oversized = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ account: 'x'.repeat(5000), password: 'x' }) });
-    return [anonymous.status, crossOrigin.status, oversized.status];
+    return [anonymous.status, oversized.status];
   });
-  expect(statuses).toEqual([401, 403, 413]);
+  expect(statuses).toEqual([401, 413]);
+  const target = new URL('/api/attendance', page.url()).href;
+  // Real cross-origin browser request, rather than overriding a forbidden Origin header.
+  await page.route('https://origin-test.invalid/**', route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>Origin test fixture</title>' }));
+  await page.goto('https://origin-test.invalid/');
+  const [rejected] = await Promise.all([page.waitForResponse(target), page.evaluate(url => fetch(url, { method: 'POST', mode: 'no-cors', body: '{}' }), target)]);
+  expect(rejected.status()).toBe(403);
 });

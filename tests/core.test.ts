@@ -5,6 +5,7 @@ import { openSession, sealSession, profile } from '../lib/session-crypto';
 import { getCourses, getClock, login, parseSign, parseWeek, submitAttendance } from '../lib/school';
 import { body, checkOrigin } from '../lib/http';
 import type { Course } from '../lib/types';
+vi.mock('../lib/transport', () => ({ schoolFetch: (url: string, init: RequestInit) => fetch(url, init) }));
 const session = { userId: 'user-a', sessionId: 'secret-school-token', studentNo: '2026123456' };
 const course = (id: string, day = '20260919', beginTime = '10:30', name = '学术英语'): Course => ({ id, day, beginTime, endTime: '12:10', uuid: '', name, teacher: '教师', signed: false });
 const reply = (data: unknown) => new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/json' } });

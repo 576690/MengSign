@@ -3,6 +3,7 @@
 import type { Course, CourseResult, SchoolSession, SignResult } from './types';
 import { normalizeDay, shanghaiDay, todaySorted } from './course';
 import { AppError } from './errors';
+import { schoolFetch } from './transport';
 export const SCHOOL_BASE = 'https://iclass.ucas.edu.cn:8181/app/';
 const UA = 'student_5.0.1.2_android_12_20_100000000000000_110000';
 type Obj = Record<string, unknown>;
@@ -14,7 +15,7 @@ export function checkAuth(value: Obj) {
 }
 export async function schoolRequest(path: string, options: { session?: SchoolSession; form?: Record<string, string>; timeout?: number; login?: boolean } = {}): Promise<Obj> {
   try {
-    const response = await fetch(SCHOOL_BASE + path, {
+    const response = await schoolFetch(SCHOOL_BASE + path, {
       method: options.form ? 'POST' : 'GET',
       headers: { 'User-Agent': options.login ? 'student_5.0.1.2_android_12_20__110000' : UA, 'Cache-Control': 'no-store', ...(options.session ? { sessionId: options.session.sessionId } : {}) },
       body: options.form ? new URLSearchParams(options.form) : undefined,
