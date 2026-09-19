@@ -29,6 +29,9 @@ export async function schoolRequest(path: string, options: { session?: SchoolSes
     checkAuth(data); return data;
   } catch (e) {
     if (e instanceof AppError) throw e;
+    // Log only an error category, never the URL, request body, identity or session.
+    const cause = e instanceof Error && e.cause && typeof e.cause === 'object' && 'code' in e.cause ? String(e.cause.code) : '';
+    console.warn('school_network_failure', { category: e instanceof Error ? e.name : 'UnknownError', code: /^[A-Z_0-9]{1,60}$/.test(cause) ? cause : 'UNSPECIFIED' });
     throw new AppError('SCHOOL_NETWORK', '连接学校超时或网络不可用，请重试', 504);
   }
 }

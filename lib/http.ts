@@ -7,6 +7,7 @@ export function failure(error: unknown) {
 export function checkOrigin(request: Request) {
   const origin = request.headers.get('origin');
   const allowed = new Set([process.env.APP_ORIGIN, process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`, process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`].filter(Boolean));
+  for (const extra of (process.env.ADDITIONAL_ORIGINS || '').split(',')) { if (extra.trim()) allowed.add(extra.trim()); }
   if (process.env.NODE_ENV !== 'production') allowed.add(new URL(request.url).origin);
   if (!origin || !allowed.has(origin) || request.headers.get('sec-fetch-site') === 'cross-site') throw new AppError('FORBIDDEN', '请从 MengSign 页面发起操作', 403);
 }

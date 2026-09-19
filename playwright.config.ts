@@ -4,5 +4,5 @@ export default defineConfig({
   testDir: './tests/e2e', fullyParallel: true, workers: 2,
   use: { baseURL, trace: 'retain-on-failure', channel: process.env.PLAYWRIGHT_CHANNEL || undefined },
   projects: [{ name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 1000 } } }, { name: 'mobile', use: { ...devices['iPhone 13'], defaultBrowserType: 'chromium' } }],
-  webServer: { command: 'npm run dev', url: baseURL, reuseExistingServer: true, timeout: 120000 },
+  webServer: /^http:\/\/(localhost|127\.0\.0\.1)/.test(baseURL) ? { command: 'npm run dev', url: baseURL, reuseExistingServer: true, timeout: 120000 } : undefined,
 });

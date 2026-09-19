@@ -36,8 +36,14 @@ test('password visibility and failed login never claim success', async ({ page }
   await page.getByRole('button', { name: '显示密码' }).click(); await expect(page.getByLabel('密码', { exact: true })).toHaveAttribute('type', 'text');
   await page.getByRole('button', { name: '登录', exact: true }).click(); await expect(page.getByRole('alert').filter({ hasText: '账号或密码不正确' })).toBeVisible();
 });
-test('API rejects unauthenticated, cross-origin and oversized requests', async ({ request }) => {
-  expect((await request.get('/api/courses')).status()).toBe(401);
-  expect((await request.post('/api/attendance', { headers: { Origin: 'https://other.example' }, data: { courseId: '1234567' } })).status()).toBe(403);
-  expect((await request.post('/api/auth/login', { headers: { Origin: process.env.TEST_BASE_URL || 'http://localhost:3000' }, data: { account: 'x'.repeat(5000), password: 'x' } })).status()).toBe(413);
+test('API rejects unauthenticated, cross-origin and oversized requests', async ({ page }) => {
+  await page.goto('/');
+  await page.route('**/api/attendance', route => route.continue({ headers: { ...route.request().headers(), origin: 'https://other.example' } }));
+  const statuses = await page.evaluate(async () => {
+    const anonymous = await fetch('/api/courses');
+    const crossOrigin = await fetch('/api/attendance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ courseId: '1234567' }) });
+    const oversized = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ account: 'x'.repeat(5000), password: 'x' }) });
+    return [anonymous.status, crossOrigin.status, oversized.status];
+  });
+  expect(statuses).toEqual([401, 403, 413]);
 });
