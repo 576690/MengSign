@@ -7,6 +7,8 @@
 - `npm run typecheck`、`npm run build`：通过。
 - Playwright：新增课表测试在桌面与手机共 6 项通过；原有页面流程共 6 项通过。覆盖视图切换、详情与键盘关闭、深色模式、无横向溢出、按需请求、离线缓存、退出清理及异常响应提示。
 - 已检查桌面周视图和手机深色按日视图截图。演示模式不调用学校周课表接口。
+- 功能提交 `6abab2b` 已自动部署到 `https://mengsign.cdro.tech`，Vercel 生产状态 Ready；正式域名手机／桌面课表与 PWA 测试共 8 项通过，正常 DNS 和 HTTPS 验证通过。登录及周课表数据在这些浏览器测试中使用测试响应。
+- 正式 `/api/timetable` 未登录请求返回 HTTP 401，响应带 `Cache-Control: private, no-store, max-age=0` 和 `Vary: Cookie`。
 - 上述周接口验证使用测试响应；真实账号返回的本周课程仍需账号所有者登录确认。当前不提供跨周查询，没有执行真实签到。
 
 2026-09-19，Windows / Node.js 24.20.0。
