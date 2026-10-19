@@ -35,3 +35,9 @@ export type ClockSample = {
   sampledAt: number;
   rtt: number;
 };
+export type TimetableResult = {
+  weekStart: string;
+  weekEnd: string;
+  courses: Course[];
+  updatedAt: number;
+};

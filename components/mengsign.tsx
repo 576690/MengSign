@@ -52,7 +52,8 @@ import {
 } from "@/lib/course";
 import type { Course, CourseResult, Profile, SignResult } from "@/lib/types";
 import QrPanel from "./qr-panel";
-type Tab = "today" | "qr" | "settings";
+import TimetablePanel from "./timetable-panel";
+type Tab = "today" | "timetable" | "qr" | "settings";
 type Theme = "system" | "light" | "dark";
 type InstallEvent = Event & {
   prompt(): Promise<void>;
@@ -60,6 +61,7 @@ type InstallEvent = Event & {
 };
 const tabs = [
   { id: "today" as const, name: "今日", icon: CalendarDays },
+  { id: "timetable" as const, name: "课表", icon: BookOpen },
   { id: "qr" as const, name: "二维码", icon: QrCode },
   { id: "settings" as const, name: "设置", icon: Settings2 },
 ];
@@ -420,15 +422,19 @@ export default function MengSign() {
                 <div className="eyebrow">
                   {tab === "today"
                     ? dateTitle
-                    : tab === "qr"
-                      ? "随时打开，即刻同步"
-                      : "按你的习惯来"}
+                    : tab === "timetable"
+                      ? "把一周的安排，看清楚"
+                      : tab === "qr"
+                        ? "随时打开，即刻同步"
+                        : "按你的习惯来"}
                 </div>
                 <h1>
                   {tab === "today" ? (
                     <>
                       今天，也从容一点<span className="heading-dot">.</span>
                     </>
+                  ) : tab === "timetable" ? (
+                    "我的课表"
                   ) : tab === "qr" ? (
                     "我的签到码"
                   ) : (
@@ -787,6 +793,17 @@ export default function MengSign() {
                   </div>
                 </aside>
               </div>
+            )}
+            {tab === "timetable" && (
+              <TimetablePanel
+                key={profile.accountKey}
+                profile={profile}
+                demo={demo}
+                online={online}
+                now={displayNow}
+                onExpired={expired}
+                demoToday={courses}
+              />
             )}
             {tab === "qr" && (
               <QrPanel

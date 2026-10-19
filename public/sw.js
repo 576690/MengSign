@@ -1,5 +1,5 @@
 /* Only the public shell and static assets are cached. Never cache /api or requests with mutations. */
-const CACHE = "mengsign-shell-v1";
+const CACHE = "mengsign-shell-v2";
 const SHELL = [
   "/",
   "/icon.svg",

@@ -1,4 +1,5 @@
 import type { CourseResult } from "./types";
+import { clearTimetable } from "./timetable-cache";
 export class ClientError extends Error {
   constructor(
     message: string,
@@ -72,6 +73,7 @@ export function clearCourses() {
 }
 export function clearPersonal() {
   clearCourses();
+  clearTimetable();
   try {
     localStorage.removeItem("mengsign:profile");
   } catch {}

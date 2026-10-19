@@ -4,6 +4,9 @@ import type { Course, CourseResult, SchoolSession, SignResult } from "./types";
 import { normalizeDay, shanghaiDay, todaySorted } from "./course";
 import { AppError } from "./errors";
 import { schoolFetch } from "./transport";
+import { weekDays } from "./timetable";
+import { courseInstant } from "./course";
+import type { TimetableResult } from "./types";
 export const SCHOOL_BASE = "https://iclass.ucas.edu.cn:8181/app/";
 const UA = "student_5.0.1.2_android_12_20_100000000000000_110000";
 type Obj = Record<string, unknown>;
@@ -173,6 +176,57 @@ export async function getCourses(
     await schoolRequest("course/get_stu_course_sched_week.action", {
       session,
       form,
+    }),
+    day,
+  );
+}
+export function parseTimetable(data: Obj, day: string): TimetableResult {
+  const days = weekDays(day);
+  checkAuth(data);
+  if (str(data.STATUS) !== "0" || !Array.isArray(data.result))
+    throw new AppError(
+      "SCHEDULE_REJECTED",
+      "学校暂未返回可用周课表，请稍后重试",
+    );
+  const courses: Course[] = [];
+  for (const item of data.result) {
+    const entry = obj(item),
+      date = normalizeDay(str(entry.dateStr));
+    if (
+      courseInstant(date, "12:00") === null ||
+      !Array.isArray(entry.schedData)
+    )
+      throw new AppError("SCHEDULE_RESPONSE", "学校周课表格式异常，请稍后重试");
+    if (!days.includes(date)) {
+      if (entry.schedData.length)
+        throw new AppError(
+          "SCHEDULE_DATE",
+          "学校返回的课表不属于本周，请稍后刷新",
+        );
+      continue;
+    }
+    courses.push(...parseCourses(entry.schedData, date));
+  }
+  return {
+    weekStart: days[0],
+    weekEnd: days[6],
+    courses: courses.sort(
+      (a, b) =>
+        a.day.localeCompare(b.day) ||
+        (courseInstant(a.day, a.beginTime) ?? Infinity) -
+          (courseInstant(b.day, b.beginTime) ?? Infinity),
+    ),
+    updatedAt: Date.now(),
+  };
+}
+export async function getTimetable(
+  session: SchoolSession,
+  day = shanghaiDay(),
+) {
+  return parseTimetable(
+    await schoolRequest("course/get_stu_course_sched_week.action", {
+      session,
+      form: { id: session.userId, dateStr: day },
     }),
     day,
   );

@@ -1865,3 +1865,269 @@ select:focus {
     scroll-behavior: auto !important;
   }
 }
+/* Weekly timetable */
+.timetable-panel {
+  padding: 26px;
+}
+.timetable-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 26px;
+  flex-wrap: wrap;
+}
+.timetable-toolbar h2 {
+  margin-top: 10px;
+  font-size: 23px;
+}
+.timetable-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.view-switch {
+  display: flex;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+.view-switch button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
+  min-height: 44px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  border-radius: 9px;
+}
+.view-switch button[aria-pressed="true"] {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.timetable-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+}
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(136px, 1fr));
+  min-width: 960px;
+}
+.week-column {
+  min-width: 0;
+  border-right: 1px solid var(--line);
+  background: var(--surface);
+}
+.week-column:last-child {
+  border: 0;
+}
+.week-day-heading {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-height: 91px;
+  justify-content: center;
+  background: var(--surface-soft);
+  color: var(--text);
+  border-bottom: 1px solid var(--line);
+}
+.week-day-heading > span {
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.week-day-heading strong {
+  font-size: 23px;
+  font-weight: 550;
+}
+.week-day-heading small {
+  font-size: 10px;
+  color: var(--accent);
+}
+.is-today .week-day-heading {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.week-day-courses {
+  min-height: 360px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.timetable-course {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+  padding: 15px 12px;
+  border-radius: 11px;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  color: var(--text);
+  min-height: 120px;
+}
+.timetable-course.ongoing {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.timetable-course strong {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.timetable-time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  flex-wrap: wrap;
+}
+.timetable-teacher {
+  font-size: 12px;
+  color: var(--muted);
+}
+.timetable-badge {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--accent);
+  font-size: 11px;
+}
+.no-classes {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 35px 0;
+}
+.day-picker {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+.day-picker button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 2px;
+  min-height: 98px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  border-radius: 11px;
+  border: 1px solid transparent;
+}
+.day-picker button[aria-pressed="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.day-picker span {
+  font-size: 12px;
+}
+.day-picker strong {
+  font-size: 21px;
+}
+.day-picker small {
+  font-size: 10px;
+}
+.day-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 25px 0 18px;
+}
+.day-summary span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.day-course-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.day-course-list .timetable-course {
+  padding: 19px;
+}
+.day-course-list .timetable-time {
+  font-size: 13px;
+}
+.course-dialog h3 {
+  color: var(--accent);
+  font-size: 22px;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+.course-dialog dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 22px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.course-dialog dt {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.course-dialog dd {
+  margin: 0;
+  text-align: right;
+}
+.timetable-offline {
+  margin-bottom: 20px;
+}
+@media (max-width: 760px) {
+  .timetable-panel {
+    padding: 18px 14px;
+  }
+  .timetable-toolbar {
+    gap: 17px;
+    margin-bottom: 20px;
+  }
+  .timetable-toolbar h2 {
+    font-size: 21px;
+  }
+  .timetable-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .day-picker {
+    gap: 4px;
+  }
+  .day-picker button {
+    border-radius: 9px;
+  }
+  .day-picker span {
+    font-size: 11px;
+  }
+  .day-course-list {
+    grid-template-columns: 1fr;
+  }
+  .bottom-nav {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  .bottom-nav button {
+    min-width: 62px;
+  }
+  .day-summary h3 {
+    font-size: 14px;
+  }
+}
